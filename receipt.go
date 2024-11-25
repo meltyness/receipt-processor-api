@@ -23,7 +23,8 @@ type ReceiptContent struct {
 }
 
 // XXX: These custom struct tags really want a compiler
-//       ... really? https://go.dev/wiki/Well-known-struct-tags
+//
+//	... really? https://go.dev/wiki/Well-known-struct-tags
 type Item struct {
 	ShortDescription string `json:"shortDescription" binding:"required,max=1024"`
 	Price            string `json:"price" binding:"required,max=1024,acceptablePrice"`

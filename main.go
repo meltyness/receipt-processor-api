@@ -22,7 +22,7 @@ func getItems(c *gin.Context) {
 func tryInstallReceipt(c *gin.Context) {
 	new_receipt := &ReceiptContent{}
 	if err := c.BindJSON(&new_receipt); err == nil {
-		new_uuid := uuid.NewString()		
+		new_uuid := uuid.NewString()
 		receipt_database[new_uuid] = NewReceipt(new_receipt, new_uuid)
 		c.JSON(http.StatusOK, receipt_install_success_response{ID: new_uuid})
 	} else {
