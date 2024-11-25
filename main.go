@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// XXX: Performing updates to this map would require synchronization
 var receipt_database = myMap{}
 
 type myMap struct {
