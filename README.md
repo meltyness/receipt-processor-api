@@ -8,5 +8,5 @@ Neatly passes go linter:
 Defines some tests for the more complex behavior specified:
 `go test`
 
-Launches an endpoint listening on 127.0.0.1:33824 
+Launches an endpoint listening on `localhost:33824`
 `go run .`
