@@ -26,7 +26,7 @@ type ReceiptContent struct {
 //
 //	... really? https://go.dev/wiki/Well-known-struct-tags
 type Item struct {
-	ShortDescription string `json:"shortDescription" binding:"required,max=1024"`
+	ShortDescription string `json:"shortDescription" binding:"required,max=1024,acceptableDescription"`
 	Price            string `json:"price" binding:"required,max=1024,acceptablePrice"`
 }
 

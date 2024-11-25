@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin/binding"
-	"github.com/go-playground/validator/v10"
 	"regexp"
 	"time"
+
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 )
 
 type receipt_install_success_response struct {
@@ -19,6 +20,19 @@ var acceptableRetailer validator.Func = func(fl validator.FieldLevel) bool {
 	// XXX: This is probably slower than maintaining a global, but retailer_re is not thread-safe
 	// 			what is the accepted standard for recording a lint as a unit test?
 	retailer_re := regexp.MustCompile(`^[\w\s-&]+$`) // re2 probably ok with
+	retailer_tested, ok := fl.Field().Interface().(string)
+	if ok {
+		return retailer_re.MatchString(retailer_tested) // XXX: \s implies multi-line retailers, and probably some other weird stuff.
+		// XXX: re2 doesn't directly support 'horizontal whitespcae' character that would remediate.
+	} else {
+		return false
+	}
+}
+
+var acceptableDescription validator.Func = func(fl validator.FieldLevel) bool {
+	// XXX: This is probably slower than maintaining a global, but retailer_re is not thread-safe
+	// 			what is the accepted standard for recording a lint as a unit test?
+	retailer_re := regexp.MustCompile(`^[\w\s-]+$`) // re2 probably ok with
 	retailer_tested, ok := fl.Field().Interface().(string)
 	if ok {
 		return retailer_re.MatchString(retailer_tested) // XXX: \s implies multi-line retailers, and probably some other weird stuff.
@@ -74,5 +88,6 @@ func RegisterValidators() {
 		v.RegisterValidation("acceptablePurchaseDate", acceptablePurchaseDate)
 		v.RegisterValidation("acceptablePurchaseTime", acceptablePurchaseTime)
 		v.RegisterValidation("acceptablePrice", acceptablePrice) // XXX: mismatching these is also a sort of runtime error.
+		v.RegisterValidation("acceptableDescription", acceptableDescription)
 	}
 }
