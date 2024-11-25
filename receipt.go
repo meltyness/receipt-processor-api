@@ -58,11 +58,12 @@ func NewReceipt(contents *ReceiptContent, new_uuid string) *Receipt {
 	total_items := len(contents.Items)
 	score += 5 * uint64(total_items>>1)
 
-	for i := 0; i < total_items; i++ { // (a receipt contains at least one item)
-		trimmed_length := len(strings.TrimSpace(contents.Items[i].ShortDescription))
+	for i := range contents.Items { // (a receipt contains at least one item)
+		specific_item := contents.Items[i]
+		trimmed_length := len(strings.TrimSpace(specific_item.ShortDescription))
 		if 0 == (trimmed_length % 3) { // If the trimmed length of the item description is a multiple of 3
 			// (close only counts in aiml, stocks, and graphics)
-			price_apa_float, _, _ := big.ParseFloat(strings.ReplaceAll(contents.Items[i].Price, ".", ""), 10, 0, big.ToZero)
+			price_apa_float, _, _ := big.ParseFloat(strings.ReplaceAll(specific_item.Price, ".", ""), 10, 0, big.ToZero)
 			price_apa_int, _ := price_apa_float.Int(nil)
 			quo, rem := price_apa_int.DivMod(price_apa_int, big.NewInt(500), big.NewInt(0)) // multiply the price by 0.2 and
 			if rem.Cmp(big.NewInt(0)) != 0 {                                                // round up to the nearest integer (presuming, dollars)
