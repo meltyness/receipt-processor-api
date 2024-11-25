@@ -61,7 +61,7 @@ func NewReceipt(contents *ReceiptContent, new_uuid string) *Receipt {
 	for i := range contents.Items { // (a receipt contains at least one item)
 		specific_item := contents.Items[i]
 		trimmed_length := len(strings.TrimSpace(specific_item.ShortDescription))
-		if 0 == (trimmed_length % 3) { // If the trimmed length of the item description is a multiple of 3
+		if (trimmed_length % 3) == 0 { // If the trimmed length of the item description is a multiple of 3
 			// (close only counts in aiml, stocks, and graphics)
 			price_apa_float, _, _ := big.ParseFloat(strings.ReplaceAll(specific_item.Price, ".", ""), 10, 0, big.ToZero)
 			price_apa_int, _ := price_apa_float.Int(nil)
@@ -78,7 +78,7 @@ func NewReceipt(contents *ReceiptContent, new_uuid string) *Receipt {
 
 	if cal_date, err := time.Parse(time.DateOnly, contents.PurchaseDate); err == nil {
 		purchased_dom := cal_date.Day()
-		if 1 == (purchased_dom % 2) {
+		if (purchased_dom % 2) == 1 {
 			score += 6
 		}
 		purchased_yyyy := cal_date.Year()
