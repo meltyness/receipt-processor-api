@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/google/uuid"
 	"testing"
+
+	"github.com/google/uuid"
 )
 
 func TestTesting(t *testing.T) {
@@ -43,7 +44,7 @@ func TestExampleCase1(t *testing.T) {
 		Total: "35.35",
 	}
 	new_uuid := uuid.NewString()
-	installed_receipt := NewReceipt(new_receipt, new_uuid)
+	installed_receipt, _ := NewReceipt(new_receipt, new_uuid)
 
 	if installed_receipt.Points != (28) {
 		t.Errorf("Tally incorrect, found installed_receipt.Points %d want 28", installed_receipt.Points)
@@ -76,7 +77,7 @@ func TestExampleCase2(t *testing.T) {
 		Total: "9.00",
 	}
 	new_uuid := uuid.NewString()
-	installed_receipt := NewReceipt(new_receipt, new_uuid)
+	installed_receipt, _ := NewReceipt(new_receipt, new_uuid)
 
 	if installed_receipt.Points != (109) {
 		t.Errorf("Tally incorrect, found installed_receipt.Points %d want 109", installed_receipt.Points)

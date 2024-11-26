@@ -1,7 +1,7 @@
 package main
 
 import (
-	"errors"
+	"fmt"
 	"math/big"
 	"regexp"
 	"strings"
@@ -40,24 +40,24 @@ func NewReceipt(contents *ReceiptContent, new_uuid string) (*Receipt, error) {
 	quarter_re := regexp.MustCompile(`[.](00|25|50|75)$`)
 
 	// TODO: validate the receipt total, and any other things that are possible to happen
-	score := uint64(0)
+	score := big.NewInt(0)
 
-	score += uint64(len(alpha_re.FindAllStringSubmatchIndex(contents.Retailer, -1)))
+	score = score.Add(score, big.NewInt(int64(len(alpha_re.FindAllStringSubmatchIndex(contents.Retailer, -1)))))
 
 	if even_re.MatchString(contents.Total) {
-		score += 50
+		score = score.Add(score, big.NewInt(50))
 	}
 
 	// XXX: This is also ambiguous! Common language would imply either for this req
 	//      -- second example confirms.
 	if quarter_re.MatchString(contents.Total) {
-		score += 25
+		score = score.Add(score, big.NewInt(25))
 	}
 
 	// >> 1 is the same as floor div 2
 	// limited to 256 items.
 	total_items := len(contents.Items)
-	score += 5 * uint64(total_items>>1)
+	score = score.Add(score, big.NewInt(int64(5*uint64(total_items>>1))))
 
 	for i := range contents.Items { // (a receipt contains at least one item)
 		specific_item := contents.Items[i]
@@ -73,18 +73,14 @@ func NewReceipt(contents *ReceiptContent, new_uuid string) (*Receipt, error) {
 			}
 			// PC_LOAD_LETTER
 
-			if quo.IsUint64() {
-				score += quo.Uint64() // the result is the number of points earned
-			} else {
-				return nil, errors.New("wrapping score from receipt, invalid")
-			}
+			score = score.Add(score, quo) // the result is the number of points earned
 		}
 	}
 
 	if cal_date, err := time.Parse(time.DateOnly, contents.PurchaseDate); err == nil {
 		purchased_dom := cal_date.Day()
 		if (purchased_dom % 2) == 1 {
-			score += 6
+			score = score.Add(score, big.NewInt(6))
 		}
 		purchased_yyyy := cal_date.Year()
 		purchased_month := cal_date.Month()
@@ -95,14 +91,18 @@ func NewReceipt(contents *ReceiptContent, new_uuid string) (*Receipt, error) {
 		if clock_time, err := time.Parse("15:04", contents.PurchaseTime); err == nil {
 			purchased_time := time.Date(purchased_yyyy, purchased_month_obj, purchased_dom, clock_time.Hour(), clock_time.Minute(), 0, 0, time.UTC)
 			if purchased_time.Compare(bonus_t1) == 1 && purchased_time.Compare(bonus_t2) == -1 { // spec is exclusive range
-				score += 10
+				score = score.Add(score, big.NewInt(10))
 			}
 		}
 	}
 
-	return &Receipt{
-		Receipt:     contents,
-		ReceiptUUID: new_uuid,
-		Points:      score,
-	}, nil
+	if score.IsUint64() {
+		return &Receipt{
+			Receipt:     contents,
+			ReceiptUUID: new_uuid,
+			Points:      score.Uint64(),
+		}, nil
+	} else {
+		return nil, fmt.Errorf("wrapping score from receipt, %s invalid", new_uuid)
+	}
 }
