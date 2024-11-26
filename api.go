@@ -32,10 +32,10 @@ var acceptableRetailer validator.Func = func(fl validator.FieldLevel) bool {
 var acceptableDescription validator.Func = func(fl validator.FieldLevel) bool {
 	// XXX: This is probably slower than maintaining a global, but retailer_re is not thread-safe
 	// 			what is the accepted standard for recording a lint as a unit test?
-	retailer_re := regexp.MustCompile(`^[\w\s-]+$`) // re2 probably ok with
-	retailer_tested, ok := fl.Field().Interface().(string)
+	description_re := regexp.MustCompile(`^[\w\s-]+$`) // re2 probably ok with
+	description_tested, ok := fl.Field().Interface().(string)
 	if ok {
-		return retailer_re.MatchString(retailer_tested) // XXX: \s implies multi-line retailers, and probably some other weird stuff.
+		return description_re.MatchString(description_tested) // XXX: \s implies multi-line retailers, and probably some other weird stuff.
 		// XXX: re2 doesn't directly support 'horizontal whitespcae' character that would remediate.
 	} else {
 		return false
