@@ -9,6 +9,10 @@ receipt_solution is a server program built using gin which:
 - can respond to queries by the UUIDs dispensed
 
 Simply use `go run .` in order to launch the server
+
+ $ go install golang.org/x/pkgsite/cmd/pkgsite@latest
+ $ cd myproject
+ $ pkgsite -open .
 */
 package main
 
