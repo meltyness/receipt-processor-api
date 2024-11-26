@@ -29,7 +29,7 @@ func (m *myMap) Select(key string) *Receipt {
 	}
 }
 
-func getItems(c *gin.Context) {
+func tryGetIdScore(c *gin.Context) {
 	id := c.Param("id")
 
 	if resp := receipt_database.Select(id); resp != nil {
@@ -71,7 +71,7 @@ func main() {
 
 	// Register specified endpoints
 	router.POST("/receipts/process", tryInstallReceipt)
-	router.GET("/receipts/:id/points", getItems)
+	router.GET("/receipts/:id/points", tryGetIdScore)
 
 	// Bind
 	router.Run("localhost:33824")
