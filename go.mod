@@ -1,4 +1,4 @@
-module solution/receipt-processor
+module github.com/meltyness/receipt-processor-api
 
 go 1.23.3
 
