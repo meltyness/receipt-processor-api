@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"math/big"
 	"regexp"
 	"strings"
@@ -30,7 +31,7 @@ type Item struct {
 	Price            string `json:"price" binding:"required,max=1024,acceptablePrice"`
 }
 
-func NewReceipt(contents *ReceiptContent, new_uuid string) *Receipt {
+func NewReceipt(contents *ReceiptContent, new_uuid string) (*Receipt, error) {
 	// XXX: This is probably slower than maintaining globals, but these are not thread-safe
 	// 			what is the accepted standard for recording a lint as a unit test?
 	// XXX: Caution: don't call Longest and reconfigure these, ever.
@@ -72,7 +73,11 @@ func NewReceipt(contents *ReceiptContent, new_uuid string) *Receipt {
 			}
 			// PC_LOAD_LETTER
 
-			score += quo.Uint64() // the result is the number of points earned
+			if quo.IsUint64() {
+				score += quo.Uint64() // the result is the number of points earned
+			} else {
+				return nil, errors.New("wrapping score from receipt, invalid")
+			}
 		}
 	}
 
@@ -99,5 +104,5 @@ func NewReceipt(contents *ReceiptContent, new_uuid string) *Receipt {
 		Receipt:     contents,
 		ReceiptUUID: new_uuid,
 		Points:      score,
-	}
+	}, nil
 }

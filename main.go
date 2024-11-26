@@ -43,8 +43,12 @@ func tryInstallReceipt(c *gin.Context) {
 	new_receipt := &ReceiptContent{}
 	if err := c.BindJSON(&new_receipt); err == nil {
 		new_uuid := uuid.NewString()
-		receipt_database.Insert(new_uuid, NewReceipt(new_receipt, new_uuid))
-		c.JSON(http.StatusOK, receipt_install_success_response{ID: new_uuid})
+		if valid_receipt, err := NewReceipt(new_receipt, new_uuid); err == nil {
+			receipt_database.Insert(new_uuid, valid_receipt)
+			c.JSON(http.StatusOK, receipt_install_success_response{ID: new_uuid})
+		} else {
+			c.AbortWithStatus(http.StatusBadRequest)
+		}
 	} else {
 		c.AbortWithStatus(http.StatusBadRequest)
 	}
