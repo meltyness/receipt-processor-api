@@ -1,18 +1,42 @@
 /*
-receipt_solution is a server program built using gin which:
-- stores receipts in a JSON format defined in `receipt.go`
-  - in doing so, computes a score
-  - returns a UUID generated for the receipt-install transaction
-  - no effort to deduplicate, each "process" installs a new receipt
-  - invalid entries are rejected at install time
+receipt-processor-api is a server program built using gin which provides two API endpoints.
 
-- can respond to queries by the UUIDs dispensed
+receipt-processor-api does not persist the receipts after the program is closed.
 
-Simply use `go run .` in order to launch the server
+# Add a receipt
 
- $ go install golang.org/x/pkgsite/cmd/pkgsite@latest
- $ cd myproject
- $ pkgsite -open .
+    /receipts/process
+
+Stores receipts in a JSON format defined in receipt.go
+
+  - Computes a score
+
+  - Returns a UUID generated for the receipt-install transaction
+
+  - No effort to deduplicate, each RPC to "process" installs a new receipt
+
+  - Invalid entries are rejected at install time, including when
+    a score would wrap int64 (signed)
+
+# Query a receipt
+
+    /receipts/id/score
+
+Responds with the score for a given receipt
+
+  - Reports the score
+
+  - 404 if the receipt was unknown
+
+# Usage
+
+	go run .
+
+# Online docs:
+
+	$ go install golang.org/x/pkgsite/cmd/pkgsite@latest
+	$ cd myproject
+	$ pkgsite -open .
 */
 package main
 
