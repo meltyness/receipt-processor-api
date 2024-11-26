@@ -8,13 +8,15 @@ import (
 	"time"
 )
 
+// This is a fully-validated receipt
 type Receipt struct {
 	Receipt     *ReceiptContent
 	ReceiptUUID string
-	Points      uint64
+	Points      int64
 }
 
-// JSON Binding Validators listed below are defined in api.go
+// ReceiptContent can hold an intermediary receipt, and serves
+// to aggregate the validators and bounds for remote properties.
 type ReceiptContent struct {
 	Retailer     string `json:"retailer" binding:"required,max=1024,acceptableRetailer"`
 	PurchaseDate string `json:"purchaseDate" binding:"required,max=1024,acceptablePurchaseDate"`
@@ -23,14 +25,20 @@ type ReceiptContent struct {
 	Total        string `json:"total" binding:"required,max=1024,acceptablePrice"`
 }
 
-// XXX: These custom struct tags really want a compiler
-//
-//	... really? https://go.dev/wiki/Well-known-struct-tags
+// Item is a collection inside of ReceiptContent, which itself also
+// needs validators to satisfy the specification.
 type Item struct {
 	ShortDescription string `json:"shortDescription" binding:"required,max=1024,acceptableDescription"`
 	Price            string `json:"price" binding:"required,max=1024,acceptablePrice"`
 }
 
+// XXX: These custom struct tags really want a compiler
+//
+//	... really? https://go.dev/wiki/Well-known-struct-tags
+
+// This is a fallible constructor for a given ReceiptContent
+// it fails in the case where the score cannot be represented
+// as an Int64
 func NewReceipt(contents *ReceiptContent, new_uuid string) (*Receipt, error) {
 	// XXX: This is probably slower than maintaining globals, but these are not thread-safe
 	// 			what is the accepted standard for recording a lint as a unit test?
@@ -96,11 +104,11 @@ func NewReceipt(contents *ReceiptContent, new_uuid string) (*Receipt, error) {
 		}
 	}
 
-	if score.IsUint64() {
+	if score.IsInt64() {
 		return &Receipt{
 			Receipt:     contents,
 			ReceiptUUID: new_uuid,
-			Points:      score.Uint64(),
+			Points:      score.Int64(),
 		}, nil
 	} else {
 		return nil, fmt.Errorf("wrapping score from receipt, %s invalid", new_uuid)

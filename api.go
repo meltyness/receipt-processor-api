@@ -8,12 +8,14 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// This defines the response format for /receipts/process endpoint
 type receipt_install_success_response struct {
 	ID string `json:"id"`
 }
 
+// This defines the response format for /receipts/{id}/points endpoint
 type receipt_query_success_response struct {
-	Points uint64 `json:"points"`
+	Points int64 `json:"points"`
 }
 
 var acceptableRetailer validator.Func = func(fl validator.FieldLevel) bool {
@@ -80,6 +82,8 @@ var acceptablePrice validator.Func = func(fl validator.FieldLevel) bool {
 	}
 }
 
+// This function registers the validators to the Engine, as suggested
+// by https://gin-gonic.com/docs/examples/custom-validators/
 func RegisterValidators() {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		// XXX: Missing one of these is a runtime error
